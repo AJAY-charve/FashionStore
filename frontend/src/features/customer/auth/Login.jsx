@@ -46,7 +46,7 @@ const Login = () => {
   useEffect(() => {
     if (error) {
       toast.error(error);
-      dispatch(clearError());
+      // dispatch(clearError());
     }
   }, [error, dispatch]);
 

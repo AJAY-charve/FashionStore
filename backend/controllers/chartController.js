@@ -122,43 +122,6 @@ const updateCartItem = async (req, res) => {
 // @desc    Remove product from cart
 // @route   DELETE /api/cart
 // @access  Public
-// const removeFromCart = async (req, res) => {
-//     const { productId, size, color, guestId, userId } = req.body
-
-//     try {
-//         const cart = await getCart(userId, guestId)
-//         if (!cart) {
-//             return res.status(404).json({ message: "Cart not found" })
-//         }
-
-//         const productIndex = cart.products.findIndex(
-//             (p) =>
-//                 p.productId.toString() === productId &&
-//                 p.size === size &&
-//                 p.color === color
-//         )
-
-//         if (productIndex === -1) {
-//             return res.status(404).json({ message: "Product not found in cart" })
-//         }
-
-//         cart.products.splice(productIndex, 1)
-
-//         cart.totalPrice = cart.products.reduce(
-//             (acc, item) => acc + Number(item.price) * Number(item.quantity),
-//             0
-//         )
-
-//         await cart.save()
-//         res.json(cart)
-
-//     } catch (error) {
-//         console.error(error)
-//         res.status(500).json({ message: "Server Error" })
-//     }
-// }
-
-
 const removeFromCart = async (req, res) => {
     const { productId, size, color, guestId, userId } = req.body
 
@@ -170,22 +133,12 @@ const removeFromCart = async (req, res) => {
 
     if (!cart) return res.status(404).json({ message: "Cart not found" })
 
-    // const productIndex = cart.products.findIndex(
-    //     (p) => p.productId.toString() === productId
-    //         && p.size === size
-    //      && p.color === color
-    // )
-
     const productIndex = cart.products.findIndex(
         (p) =>
             p.productId.toString() === productId &&
             p.size.toLowerCase() === size.toLowerCase() &&
             p.color.toLowerCase() === color.toLowerCase()
     );
-
-
-    console.log("productIdex", productIndex);
-
 
     if (productIndex === -1) return res.status(404).json({ message: "Product not found in cart" })
     cart.products.splice(productIndex, 1)

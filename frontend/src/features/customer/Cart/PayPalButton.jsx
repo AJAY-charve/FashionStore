@@ -1,5 +1,4 @@
 import React from "react";
-// import { PayPalButton, PayPalScriptProvider } from "@paypal/react-paypal-js";
 import { PayPalScriptProvider, PayPalButtons } from "@paypal/react-paypal-js";
 
 const PayPalButton = ({ amount, onSuccess, onError }) => {

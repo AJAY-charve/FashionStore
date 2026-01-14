@@ -9,7 +9,6 @@ import {
 } from "../../../redux/slice/productSlice";
 
 import { addToCart } from "../../../redux/slice/cartSlice";
-// import User from "../../../../backend/models/User";
 
 const ProductDetails = ({ productId }) => {
   const { id } = useParams();
@@ -30,17 +29,6 @@ const ProductDetails = ({ productId }) => {
   const [isButtonDisabled, setIsButtonDisabled] = useState(false);
 
   const productFetchId = productId || id;
-
-  // console.log("fetchProcdut id", productFetchId);
-
-  // useEffect(() => {
-  //   if (productFetchId) {
-  //     dispatch(fetchProductDetails(productFetchId));
-  //     dispatch(fetchSimilarProducts({ id: productFetchId }));
-  //   }
-  // }, [dispatch]);
-
-  // console.log(guestId, user);
 
   useEffect(() => {
     if (productFetchId) {

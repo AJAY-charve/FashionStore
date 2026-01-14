@@ -8,9 +8,6 @@ const createProduct = async (req, res) => {
             user: req.user._id
         })
 
-        // console.log("products", product);
-
-
         const createdProduct = await product.save()
         res.status(201).json(createdProduct)
     } catch (error) {
