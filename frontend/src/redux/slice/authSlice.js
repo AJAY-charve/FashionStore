@@ -17,8 +17,6 @@ const initialState = {
     error: null
 }
 
-// console.log("user", userFromStorage);
-
 
 // async thunk for user login
 export const loginUser = createAsyncThunk("auth/loginUser", async (userData, { rejectWithValue }) => {
@@ -92,7 +90,6 @@ const authSlice = createSlice({
             })
     }
 })
-
 
 export const { logout, genrateNewGuestId } = authSlice.actions
 export default authSlice.reducer

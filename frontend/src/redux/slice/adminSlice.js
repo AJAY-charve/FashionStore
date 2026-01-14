@@ -1,11 +1,10 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
 
-
 // fetch all user (admin only)
 export const fetchUsers = createAsyncThunk("admin/fetchUsers",
-    async () => {
-        const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/api/admin/users`,
+    async ({ page = 1, limit = 10 }) => {
+        const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/api/admin/users?page=${page}&limit=${limit}`,
             {
                 headers: {
                     Authorization: `Bearer ${localStorage.getItem("userToken")}`
@@ -71,6 +70,9 @@ const adminSlice = createSlice({
     name: "admin",
     initialState: {
         users: [],
+        page: 1,
+        totalPages: 1,
+        totalUsers: 0,
         loading: false,
         error: null
     },
@@ -82,7 +84,10 @@ const adminSlice = createSlice({
             })
             .addCase(fetchUsers.fulfilled, (state, action) => {
                 state.loading = false
-                state.users = action.payload
+                state.users = action.payload.users
+                state.page = action.payload.page
+                state.totalPages = action.payload.totalPages
+                state.totalUsers = action.payload.totalUsers
             })
             .addCase(fetchUsers.rejected, (state, action) => {
                 state.loading = false
@@ -109,7 +114,7 @@ const adminSlice = createSlice({
             })
             .addCase(addUser.fulfilled, (state, action) => {
                 state.loading = false
-                state.users = push(action.payload.user)   // add new user
+                state.users = push(action.payload.user)
             })
             .addCase(addUser.rejected, (state, action) => {
                 state.loading = false

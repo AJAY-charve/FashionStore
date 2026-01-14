@@ -5,8 +5,28 @@ const User = require("../models/User")
 // @access  Private/Admin
 const getAllUsers = async (req, res) => {
     try {
+        // const users = await User.find({})
+        // res.json(users) 
+
+        const page = Number(req.query.page) || 1;
+        const limit = Number(req.query.limit) || 10;
+
+        const skip = (page - 1) * limit
+
+        const totalUsers = await User.countDocuments()
+
         const users = await User.find({})
-        res.json(users)
+            .skip(skip)
+            .limit(limit)
+            .sort({ createdAt: -1 })
+
+        res.status(200).json({
+            users,
+            page,
+            totalPages: Math.ceil(totalUsers / limit),
+            totalUsers
+        })
+
     } catch (error) {
         console.error(error)
         res.status(500).json({ message: "Server Error" })

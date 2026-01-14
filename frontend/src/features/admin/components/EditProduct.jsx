@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate, useParams } from "react-router-dom";
+import axios from "axios";
 import { fetchProductDetails } from "../../../redux/slice/productSlice";
 import { updateProduct } from "../../../redux/slice/adminProductSlice";
 import { toast } from "sonner";
@@ -9,11 +10,10 @@ const EditProduct = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { id } = useParams();
+
   const { selectedProduct, loading, error } = useSelector(
     (state) => state.products
   );
-
-  console.log("selectedProduct", selectedProduct);
 
   const [productData, setProductData] = useState({
     name: "",
@@ -33,30 +33,56 @@ const EditProduct = () => {
 
   const [uploading, setUploading] = useState(false);
 
+  // fetch product
   useEffect(() => {
     if (id) {
       dispatch(fetchProductDetails({ id }));
     }
   }, [dispatch, id]);
 
+  // fill form after fetch
   useEffect(() => {
-    if (selectedProduct) {
-      setProductData(selectedProduct);
+    if (selectedProduct?._id) {
+      setProductData({
+        name: selectedProduct.name || "",
+        description: selectedProduct.description || "",
+        price: selectedProduct.price || 0,
+        countInStock: selectedProduct.countInStock || 0,
+        sku: selectedProduct.sku || "",
+        category: selectedProduct.category || "",
+        brand: selectedProduct.brand || "",
+        sizes: selectedProduct.sizes || [],
+        colors: selectedProduct.colors || [],
+        collections: selectedProduct.collections || "",
+        material: selectedProduct.material || "",
+        gender: selectedProduct.gender || "",
+        images: selectedProduct.images || [],
+      });
     }
   }, [selectedProduct]);
 
+  // input change
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setProductData((prevData) => ({ ...prevData, [name]: value }));
+
+    setProductData((prev) => ({
+      ...prev,
+      [name]:
+        name === "price" || name === "countInStock" ? Number(value) : value,
+    }));
   };
 
+  // image upload
   const handleImageUpload = async (e) => {
     const file = e.target.files[0];
-    // console.log(file);
+    if (!file) return;
+
     const formData = new FormData();
     formData.append("image", file);
+
     try {
       setUploading(true);
+
       const { data } = await axios.post(
         `${import.meta.env.VITE_BACKEND_URL}/api/upload`,
         formData,
@@ -64,167 +90,117 @@ const EditProduct = () => {
           headers: { "Content-Type": "multipart/form-data" },
         }
       );
-      setProductData((prevData) => ({
-        ...prevData,
-        images: [...prevData.images, { url: data.imageUrl, altText: "" }],
+
+      setProductData((prev) => ({
+        ...prev,
+        images: [...prev.images, { url: data.imageUrl, altText: "" }],
       }));
-      setUploading(true);
-    } catch (error) {
-      console.log(error);
+
       setUploading(false);
+    } catch (error) {
+      console.error(error);
+      setUploading(false);
+      toast.error("❌ Image upload failed");
     }
   };
 
-  // const handeSubmit = (e) => {
-  //   e.preventDefault();
-  //   // console.log(productData);
-  //   dispatch(updateProduct({ id, productData }));
-  //   navigate("/admin/products");
-  // };
-
-  const handeSubmit = async (e) => {
+  // submit
+  const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await dispatch(updateProduct({ id, productData }));
-
+      await dispatch(updateProduct({ id, productData })).unwrap();
       toast.success("✏️ Product updated successfully");
       navigate("/admin/products");
     } catch (error) {
+      console.error(error);
       toast.error("❌ Product update failed");
     }
   };
 
-  if (loading) {
-    return <p>Loading..</p>;
-  }
-
-  if (error) {
-    return <p>Error : {error}</p>;
-  }
+  if (loading) return <p>Loading...</p>;
+  if (error) return <p>Error : {error}</p>;
 
   return (
     <div className="max-w-5xl mx-auto p-6 shadow-md rounded-md">
-      <h2 className="text-3xl font-bold mb-6">Edit Products</h2>
-      <form onSubmit={handeSubmit}>
+      <h2 className="text-3xl font-bold mb-6">Edit Product</h2>
+
+      <form onSubmit={handleSubmit}>
         {/* name */}
-        <div className="mb-6">
-          <label className="block font-semibold mb-2">Product Name</label>
-          <input
-            type="text"
-            name="name"
-            value={productData.name}
-            onChange={handleChange}
-            className="w-full border border-gray-300 rounded-md p-2"
-            required
-          />
-        </div>
+        <input
+          type="text"
+          name="name"
+          value={productData.name}
+          onChange={handleChange}
+          className="w-full border p-2 mb-4"
+          required
+        />
 
         {/* description */}
-        <div className="mb-6">
-          <label className="block font-semibold mb-2">Description</label>
-          <textarea
-            name="description"
-            value={productData.description}
-            className="w-full border border-gray-300 rounded-md p-2"
-            rows={4}
-            required
-            onChange={handleChange}
-          ></textarea>
-        </div>
+        <textarea
+          name="description"
+          value={productData.description}
+          onChange={handleChange}
+          rows={4}
+          className="w-full border p-2 mb-4"
+          required
+        />
 
-        {/* Price*/}
-        <div className="mb-6">
-          <label className="block font-semibold mb-2">Price</label>
-          <input
-            type="number"
-            name="price"
-            value={productData.price}
-            onChange={handleChange}
-            className="w-full border border-gray-300 rounded-md p-2"
-          />
-        </div>
+        {/* price */}
+        <input
+          type="number"
+          name="price"
+          value={productData.price}
+          onChange={handleChange}
+          className="w-full border p-2 mb-4"
+        />
 
-        {/* count in stock */}
-        <div className="mb-6">
-          <label className="block font-semibold mb-2">Count in Stock</label>
-          <input
-            type="number"
-            name="countInStock"
-            value={productData.countInStock}
-            onChange={handleChange}
-            className="w-full border border-gray-300 rounded-md p-2"
-          />
-        </div>
-
-        {/* Sku */}
-        <div className="mb-6">
-          <label className="block font-semibold mb-2">SKU</label>
-          <input
-            type="text"
-            name="sku"
-            value={productData.sku}
-            onChange={handleChange}
-            className="w-full border border-gray-300 rounded-md p-2"
-          />
-        </div>
+        {/* stock */}
+        <input
+          type="number"
+          name="countInStock"
+          value={productData.countInStock}
+          onChange={handleChange}
+          className="w-full border p-2 mb-4"
+        />
 
         {/* sizes */}
-        <div className="mb-6">
-          <label className="block font-semibold mb-2">
-            Sizes (comma-separated)
-          </label>
-          <input
-            type="text"
-            name="sizes"
-            value={productData.sizes.join(", ")}
-            onChange={(e) =>
-              setProductData({
-                ...productData,
-                sizes: e.target.value.split(",").map((size) => size.trim()),
-              })
-            }
-            className="w-full border border-gray-300 rounded-md p-2"
-          />
+        <input
+          type="text"
+          value={productData.sizes.join(", ")}
+          onChange={(e) =>
+            setProductData({
+              ...productData,
+              sizes: e.target.value.split(",").map((s) => s.trim()),
+            })
+          }
+          className="w-full border p-2 mb-4"
+        />
+
+        {/* colors */}
+        <input
+          type="text"
+          value={productData.colors.join(", ")}
+          onChange={(e) =>
+            setProductData({
+              ...productData,
+              colors: e.target.value.split(",").map((c) => c.trim()),
+            })
+          }
+          className="w-full border p-2 mb-4"
+        />
+
+        {/* images */}
+        <input type="file" onChange={handleImageUpload} />
+
+        <div className="flex gap-3 mt-3">
+          {productData.images.map((img, i) => (
+            <img key={i} src={img.url} className="w-20 h-20 rounded" />
+          ))}
         </div>
 
-        {/*  colors */}
-        <div className="mb-6">
-          <label className="block font-semibold mb-2">
-            Color (comma-separated)
-          </label>
-          <input
-            type="text"
-            name="colors"
-            value={productData.colors.join(", ")}
-            onChange={(e) =>
-              setProductData({
-                ...productData,
-                colors: e.target.value.split(",").map((color) => color.trim()),
-              })
-            }
-            className="w-full border border-gray-300 rounded-md p-2"
-          />
-        </div>
-
-        {/* image upload */}
-        <div className="mb-6">
-          <label className="block font-semibold mb-2">Upload</label>
-          <input type="file" onChange={handleImageUpload} />
-          <div className="flex gap-4 mt-4">
-            {productData.images.map((image, index) => (
-              <div key={index} className="">
-                <img
-                  src={image.url}
-                  alt={image.altText || "Product Images"}
-                  className="w-20 h-20 object-cover rounded-md shadow-md"
-                />
-              </div>
-            ))}
-          </div>
-        </div>
         <button
-          type="submit"
-          className="w-full bg-green-500 text-white py-2 rounded-md hover:bg-green-600 transition-colors"
+          disabled={uploading}
+          className="w-full mt-6 bg-green-600 text-white py-2 rounded"
         >
           Update Product
         </button>

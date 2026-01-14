@@ -5,10 +5,30 @@ const Order = require("../models/Order")
 // @access  Private/Admin
 const getAllOrders = async (req, res) => {
     try {
-        const orders = await Order.find({})
-            .populate("user", "name email")
+        // const orders = await Order.find({})
+        //     .populate("user", "name email")
 
-        res.json(orders)
+        // res.json(orders)
+
+        const page = Number(req.query.page) || 1
+        const limit = Number(req.query.limit)
+
+        const skip = (page - 1) * limit
+
+        const totalOrders = await Order.countDocuments()
+
+        const orders = await Order.find({})
+            .skip(skip)
+            .limit(limit)
+            .sort({ createdAt: -1 })
+
+        res.status(200).json({
+            orders,
+            page,
+            totaPages: Math.ceil(totalOrders / limit),
+            totalOrders
+        })
+
     } catch (error) {
         console.error(error)
         res.status(500).json({ message: "Server Error" })

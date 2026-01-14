@@ -29,23 +29,6 @@ const Checkout = () => {
     }
   }, [cart, navigate]);
 
-  // const handleCreateChekcout = async (e) => {
-  //   e.preventDefault();
-  //   if (cart && cart.products.length > 0) {
-  //     const res = dispatch(
-  //       createCheckout({
-  //         checkoutItems: cart.products,
-  //         shippingAddress,
-  //         paymentMethod: "PayPal",
-  //         totalPrice: cart.totalPrice,
-  //       })
-  //     );
-  //     if (res.payload && res.payload._id) {
-  //       setIsCheckoutId(res.payload._id);
-  //     }
-  //   }
-  // };
-
   const handleCreateChekcout = async (e) => {
     e.preventDefault();
 
