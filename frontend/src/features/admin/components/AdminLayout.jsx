@@ -40,7 +40,7 @@ const AdminLayout = () => {
       </div>
 
       {/* main component */}
-      <div className="flex-grow p-6 overflow-auto">
+      <div className="flex-grow p-2 lg:p-4 xl:p-6 overflow-auto">
         <Outlet />
       </div>
     </div>

@@ -1,6 +1,5 @@
 const Product = require("../models/Product")
 
-// CREATE PRODUCT (ADMIN)
 const createProduct = async (req, res) => {
     try {
         const product = new Product({
@@ -16,7 +15,6 @@ const createProduct = async (req, res) => {
     }
 }
 
-// UPDATE PRODUCT (ADMIN)
 const updateProduct = async (req, res) => {
     try {
         const product = await Product.findById(req.params.id)
@@ -38,7 +36,6 @@ const updateProduct = async (req, res) => {
     }
 }
 
-// DELETE PRODUCT (ADMIN)
 const deleteProduct = async (req, res) => {
     try {
         const product = await Product.findById(req.params.id)
@@ -70,55 +67,67 @@ const getProducts = async (req, res) => {
             category,
             material,
             brand,
-            limit
-        } = req.query
+            page = 1,
+            limit = 12
+        } = req.query;
 
         const decode = (v) =>
-            v ? decodeURIComponent(v).replace(/\+/g, " ") : v
+            v ? decodeURIComponent(v).replace(/\+/g, " ") : v;
 
-        let query = {}
+        let query = {};
 
         if (decode(collection) && decode(collection).toLowerCase() !== "all") {
-            query.collections = decode(collection)
+            query.collections = decode(collection);
         }
 
         if (decode(category) && decode(category).toLowerCase() !== "all") {
-            query.category = decode(category)
+            query.category = decode(category);
         }
 
-        if (material) query.material = { $in: material.split(",") }
-        if (brand) query.brand = { $in: brand.split(",") }
-        if (size) query.sizes = { $in: size.split(",") }
-        if (color) query.colors = { $in: color.split(",") }
-        if (gender) query.gender = gender
+        if (material) query.material = { $in: material.split(",") };
+        if (brand) query.brand = { $in: brand.split(",") };
+        if (size) query.sizes = { $in: size.split(",") };
+        if (color) query.colors = { $in: color.split(",") };
+        if (gender) query.gender = gender;
 
         if (minPrice || maxPrice) {
-            query.price = {}
-            if (minPrice) query.price.$gte = Number(minPrice)
-            if (maxPrice) query.price.$lte = Number(maxPrice)
+            query.price = {};
+            if (minPrice) query.price.$gte = Number(minPrice);
+            if (maxPrice) query.price.$lte = Number(maxPrice);
         }
 
         if (search) {
             query.$or = [
                 { name: { $regex: search, $options: "i" } },
                 { description: { $regex: search, $options: "i" } }
-            ]
+            ];
         }
 
-        let sort = {}
-        if (sortBy === "priceAsc") sort.price = 1
-        if (sortBy === "priceDsc") sort.price = -1
+        let sort = {};
+        if (sortBy === "priceAsc") sort.price = 1;
+        if (sortBy === "priceDesc") sort.price = -1;
+
+        const skip = (Number(page) - 1) * Number(limit);
+
+        const totalProducts = await Product.countDocuments(query);
 
         const products = await Product.find(query)
             .sort(sort)
-            .limit(Number(limit) || 0)
+            .skip(skip)
+            .limit(Number(limit));
 
-        res.json(products)
+        res.json({
+            products,
+            totalProducts,
+            totalPages: Math.ceil(totalProducts / limit),
+            currentPage: Number(page)
+        });
     } catch (error) {
-        console.log(error)
-        res.status(500).send("Server Error")
+        console.log(error);
+        res.status(500).send("Server Error");
     }
-}
+};
+
 
 // GET PRODUCT BY ID
 const getProductById = async (req, res) => {

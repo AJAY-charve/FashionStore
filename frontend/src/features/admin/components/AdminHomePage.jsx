@@ -1,9 +1,10 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Link, useNavigate } from "react-router-dom";
 import { fetchAdminProducts } from "../../../redux/slice/adminProductSlice";
 import { fetchAllOrders } from "../../../redux/slice/adminOrderSlice";
 import CustomTable from "../../components/common/CustomTable";
+import Loading from "../../components/common/Loading";
 
 const AdminHomePage = () => {
   const dispatch = useDispatch();
@@ -13,25 +14,42 @@ const AdminHomePage = () => {
     (state) => state.adminProducts
   );
   const {
-    orders,
+    orders = [],
     totalOrders,
     totalSales,
+    page,
+    totalPages,
     loading: ordersLoading,
   } = useSelector((state) => state.adminOrders);
 
+  const [currentPage, setCurrentPage] = useState(1);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
+
   useEffect(() => {
     dispatch(fetchAdminProducts());
-    dispatch(fetchAllOrders());
-  }, [dispatch]);
+    dispatch(fetchAllOrders({ page: currentPage, limit: rowsPerPage }));
+  }, [dispatch, navigate, currentPage, rowsPerPage]);
 
   const orderColumns = [
-    { header: "Order ID", accessor: "_id" },
-    { header: "User", accessor: "users.name" },
-    { header: "Total Price", accessor: "totalPrice" },
     {
-      header: "Status",
-      accessor: "status",
-      cell: (row) => (
+      title: "Order ID",
+      key: "_id",
+      render: (row) => `#${row._id}`,
+    },
+    {
+      title: "User",
+      key: "users.name",
+      render: (row) => row.user?.name || "N/A",
+    },
+    {
+      title: "Total Price",
+      key: "totalPrice",
+      render: (row) => `₹${row.totalPrice}`,
+    },
+    {
+      title: "Status",
+      key: "status",
+      render: (row) => (
         <span
           className={`px-3 py-1 rounded-full text-sm font-medium ${
             row.status === "Delivered"
@@ -43,28 +61,16 @@ const AdminHomePage = () => {
         </span>
       ),
     },
-    {
-      header: "Action",
-      cell: (row) => (
-        <button
-          onClick={() => navigate(`/admin/orders/${row._id}`)}
-          className="text-blue-600 hover:underline"
-        >
-          View
-        </button>
-      ),
-    },
   ];
 
   if (productLoading || ordersLoading) {
-    return <p className="text-center mt-10">Loading...</p>;
+    return <Loading />;
   }
 
   return (
     <div className="max-w-7xl mx-auto p-4 sm:p-6">
       <h1 className="text-3xl font-bold mb-6">Admin Dashboard</h1>
 
-      {/* ====== STATS ====== */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-10">
         <div className="bg-white border rounded-xl p-6 shadow-sm">
           <h2 className="text-gray-500">Revenue</h2>
@@ -94,18 +100,20 @@ const AdminHomePage = () => {
         </div>
       </div>
 
-      {/* ====== RECENT ORDERS TABLE ====== */}
-      {/* <div className="bg-white border rounded-xl p-4 shadow-sm">
+      <div className="bg-white border rounded-xl p-4 shadow-sm">
         <h2 className="text-xl font-semibold mb-4">Recent Orders</h2>
 
         <CustomTable
           columns={orderColumns}
           data={orders}
-          rowsPerPageOptions={[10, 20, 50]}
-          noDataText="No recent orders found"
-          maxHeight="800px"
+          loading={ordersLoading}
+          currentPage={page}
+          totalPages={totalPages}
+          onPageChange={setCurrentPage}
+          rowsPerPage={rowsPerPage}
+          onRowsPerPageChange={setRowsPerPage}
         />
-      </div> */}
+      </div>
     </div>
   );
 };

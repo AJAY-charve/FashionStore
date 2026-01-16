@@ -10,27 +10,6 @@ const CartDrawer = ({ drawerOpen, toggleCartDrawer }) => {
   const navigate = useNavigate();
   const { user, guestId } = useSelector((state) => state.auth);
   const { cart } = useSelector((state) => state.cart);
-  // const [cart, setCart] = useState([]);
-
-  // console.log(user);
-
-  // useEffect(() => {
-  //   const fetchCart = async () => {
-  //     try {
-  //       const res = await axios.get("http://localhost:9000/api/cart", {
-  //         params: {
-  //           userId: user._id,
-  //         },
-  //       });
-  //       setCart(res.data);
-  //       console.log(res.data);
-  //     } catch (err) {
-  //       console.log(err.response?.data || err.message);
-  //     }
-  //   };
-
-  //   fetchCart();
-  // }, []);
 
   const userId = user ? user._id : null;
 

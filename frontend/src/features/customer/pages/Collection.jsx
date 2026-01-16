@@ -12,6 +12,7 @@ const Collection = () => {
   const { collection } = useParams();
   const [searchParams] = useSearchParams();
   const dispatch = useDispatch();
+
   const { products, loading, error } = useSelector((state) => state.products);
 
   const sidebarRef = useRef(null);
@@ -19,11 +20,25 @@ const Collection = () => {
 
   const queryParams = Object.fromEntries([...searchParams]);
 
-  useEffect(() => {
-    dispatch(fetchProductByFilters({ collection, ...queryParams }));
-  }, [collection, searchParams, dispatch]);
+  const [page, setPage] = useState(1);
+  const [rows, setRows] = useState(12);
 
-  // close sidebar on outside click (mobile)
+  useEffect(() => {
+    dispatch(
+      fetchProductByFilters({
+        collection,
+        ...queryParams,
+        page,
+        limit: rows,
+      })
+    );
+  }, [collection, searchParams, page, rows, dispatch]);
+
+  useEffect(() => {
+    setPage(1);
+  }, [collection, searchParams]);
+
+  // Close sidebar on outside click (mobile)
   useEffect(() => {
     const handleClickOutside = (e) => {
       if (sidebarRef.current && !sidebarRef.current.contains(e.target)) {
@@ -35,39 +50,72 @@ const Collection = () => {
   }, []);
 
   return (
-    <div className="flex min-h-screen bg-gray-50">
-      {/* Mobile Filter Button */}
-      <button
-        onClick={() => setIsSidebarOpen(true)}
-        className="lg:hidden fixed bottom-4 left-4 z-50 bg-black text-white px-4 py-3 rounded-full shadow-lg flex items-center gap-2"
-      >
-        <FaFilter />
-        Filter
-      </button>
+    <div className="min-h-screen bg-gray-50">
+      {/* MOBILE TOP BAR */}
+      <div className="lg:hidden sticky top-0 z-30 bg-white border-b px-4 py-3 flex justify-between items-center">
+        <h2 className="text-sm font-semibold uppercase">All Collection</h2>
 
-      {/* Sidebar */}
-      <aside
-        ref={sidebarRef}
-        className={`fixed lg:static inset-y-0 left-0 z-40 w-72 bg-white border-r shadow-lg
-        transform transition-transform duration-300
-        ${isSidebarOpen ? "translate-x-0" : "-translate-x-full"}
-        lg:translate-x-0`}
-      >
-        <FilterSidebar closeSidebar={() => setIsSidebarOpen(false)} />
-      </aside>
+        <button
+          onClick={() => setIsSidebarOpen(true)}
+          className="flex items-center gap-2 text-sm font-medium border px-3 py-2 rounded"
+        >
+          <FaFilter />
+          Filter
+        </button>
+      </div>
 
-      {/* Main Content */}
-      <main className="flex-1  h-[1000px] overflow-y-auto c p-4 lg:p-8">
-        <div className="flex flex-col sm:flex-row justify-between items-center mb-6">
-          <h1 className="text-2xl font-semibold uppercase tracking-wide">
-            All Collection
-          </h1>
-          <SortOption />
-        </div>
+      <div className="flex">
+        {/* OVERLAY (mobile) */}
+        {isSidebarOpen && (
+          <div
+            className="fixed inset-0 bg-black/40 z-30 lg:hidden"
+            onClick={() => setIsSidebarOpen(false)}
+          />
+        )}
 
-        <ProductGrid products={products} loading={loading} error={error} />
-      </main>
+        {/* SIDEBAR */}
+        <aside
+          ref={sidebarRef}
+          className={`
+            fixed lg:static top-0 left-0 z-40
+            w-72 h-full bg-white border-r
+            transform transition-transform duration-300
+            ${isSidebarOpen ? "translate-x-0" : "-translate-x-full"}
+            lg:translate-x-0
+          `}
+        >
+          <FilterSidebar closeSidebar={() => setIsSidebarOpen(false)} />
+        </aside>
+
+        {/* MAIN CONTENT */}
+        <main className="flex-1 p-4 lg:p-8">
+          {/* DESKTOP HEADER */}
+          <div className="hidden lg:flex justify-between items-center mb-6">
+            <h1 className="text-2xl font-semibold uppercase">All Collection</h1>
+
+            <div className="flex items-center gap-3">
+              <SortOption />
+
+              <select
+                value={rows}
+                onChange={(e) => {
+                  setRows(Number(e.target.value));
+                  setPage(1);
+                }}
+                className="border px-2 py-1 rounded"
+              >
+                <option value={8}>8</option>
+                <option value={12}>12</option>
+                <option value={160}>16</option>
+              </select>
+            </div>
+          </div>
+
+          <ProductGrid products={products} loading={loading} error={error} />
+        </main>
+      </div>
     </div>
   );
 };
+
 export default Collection;

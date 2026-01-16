@@ -1,15 +1,8 @@
 const Order = require("../models/Order")
 
-// @desc    Get logged-in user's orders
-// @route   GET /api/orders/my-orders
-// @access  Private
+// Get logged-in user's orders
 const getMyOrders = async (req, res) => {
     try {
-        // const orders = await Order.find({ user: req.user._id })
-        //     .sort({ createdAt: -1 })
-
-        // res.json(orders)
-
         const page = Number(req.query.page) || 1
         const limit = Number(req.query.limit) || 10
 
@@ -35,9 +28,7 @@ const getMyOrders = async (req, res) => {
     }
 }
 
-// @desc    Get order details by ID
-// @route   GET /api/orders/:id
-// @access  Private
+// Get order details by ID
 const getOrderById = async (req, res) => {
     try {
         const order = await Order.findById(req.params.id)

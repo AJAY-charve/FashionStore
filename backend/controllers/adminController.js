@@ -1,13 +1,8 @@
 const User = require("../models/User")
 
-// @desc    Get all users
-// @route   GET /api/users
-// @access  Private/Admin
+// Get all users
 const getAllUsers = async (req, res) => {
     try {
-        // const users = await User.find({})
-        // res.json(users) 
-
         const page = Number(req.query.page) || 1;
         const limit = Number(req.query.limit) || 10;
 
@@ -33,9 +28,7 @@ const getAllUsers = async (req, res) => {
     }
 }
 
-// @desc    Create new user
-// @route   POST /api/users
-// @access  Private/Admin
+// Create new user
 const createUser = async (req, res) => {
     const { name, email, password, role } = req.body
 
@@ -62,9 +55,7 @@ const createUser = async (req, res) => {
     }
 }
 
-// @desc    Update user
-// @route   PUT /api/users/:id
-// @access  Private/Admin
+// Update user
 const updateUser = async (req, res) => {
     try {
         const user = await User.findById(req.params.id)
@@ -89,9 +80,7 @@ const updateUser = async (req, res) => {
     }
 }
 
-// @desc    Delete user
-// @route   DELETE /api/users/:id
-// @access  Private/Admin
+// Delete user
 const deleteUser = async (req, res) => {
     try {
         const user = await User.findById(req.params.id)

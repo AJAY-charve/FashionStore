@@ -1,7 +1,6 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
 
-// create a checkout session
 export const createCheckout = createAsyncThunk("checkout/createCheckout",
     async (checkoutData, { rejectWithValue }) => {
         try {
@@ -20,7 +19,6 @@ export const createCheckout = createAsyncThunk("checkout/createCheckout",
         }
     }
 )
-
 
 const checkoutSlice = createSlice({
     name: "checkout",

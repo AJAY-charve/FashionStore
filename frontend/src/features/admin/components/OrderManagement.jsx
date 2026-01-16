@@ -27,7 +27,6 @@ const OrderManagement = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [rowsPerPage, setRowsPerPage] = useState(10);
 
-  /* ================= ADMIN GUARD ================= */
   useEffect(() => {
     if (user && user.role !== "admin") {
       navigate("/");
@@ -36,7 +35,6 @@ const OrderManagement = () => {
     }
   }, [dispatch, user, navigate, currentPage, rowsPerPage]);
 
-  /* ================= TOAST HANDLER ================= */
   useEffect(() => {
     if (successMessage) {
       toast.success(successMessage);
@@ -49,12 +47,10 @@ const OrderManagement = () => {
     }
   }, [successMessage, error, dispatch]);
 
-  /* ================= ACTIONS ================= */
   const handleStatusChange = (orderId, status) => {
     dispatch(updateOrderStatus({ id: orderId, status }));
   };
 
-  /* ================= TABLE COLUMNS ================= */
   const columns = [
     {
       title: "Order ID",
@@ -65,7 +61,7 @@ const OrderManagement = () => {
     },
     {
       title: "Customer",
-      key: "user",
+      key: "user.name",
       render: (row) => row.user?.name || "N/A",
     },
     {
@@ -80,8 +76,9 @@ const OrderManagement = () => {
         <select
           value={row.status}
           onChange={(e) => handleStatusChange(row._id, e.target.value)}
-          disabled={loading}
-          className="border rounded px-2 py-1 text-sm bg-white"
+          disabled={row.status === "Delivered" || loading}
+          className={`border rounded px-2 py-1 text-sm bg-white
+        ${row.status === "Delivered" ? "bg-gray-100 cursor-not-allowed" : ""}`}
         >
           <option value="Processing">Processing</option>
           <option value="Shipped">Shipped</option>
@@ -98,11 +95,11 @@ const OrderManagement = () => {
           onClick={() => handleStatusChange(row._id, "Delivered")}
           disabled={row.status === "Delivered" || loading}
           className={`px-3 py-1 rounded text-sm text-white
-            ${
-              row.status === "Delivered"
-                ? "bg-gray-400 cursor-not-allowed"
-                : "bg-green-600 hover:bg-green-700"
-            }`}
+        ${
+          row.status === "Delivered"
+            ? "bg-gray-400 cursor-not-allowed"
+            : "bg-green-600 hover:bg-green-700"
+        }`}
         >
           Mark Delivered
         </button>
@@ -111,15 +108,13 @@ const OrderManagement = () => {
   ];
 
   return (
-    <div className="max-w-7xl mx-auto p-4 sm:p-6">
+    <div className="max-w-7xl mx-auto p-2 lg:p-4 xl:p-6">
       <h2 className="text-2xl font-bold mb-6">Order Management</h2>
 
       <CustomTable
         columns={columns}
         data={orders}
         loading={loading}
-        // pageSizeOptions={[10, 20, 50]}
-        // maxHeight={800}
         currentPage={page}
         totalPages={totalPages}
         onPageChange={setCurrentPage}

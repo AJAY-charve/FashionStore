@@ -16,27 +16,27 @@ export const fetchUsers = createAsyncThunk("admin/fetchUsers",
 )
 
 
-// create user
-export const addUser = createAsyncThunk("admin/addUser",
-    async ({ userData }, { rejectWithValue }) => {
+export const addUser = createAsyncThunk(
+    "admin/addUser",
+    async (userData, { rejectWithValue }) => {
         try {
-            const response = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/api/admin/users`,
+            const response = await axios.post(
+                `${import.meta.env.VITE_BACKEND_URL}/api/admin/users`,
                 userData,
                 {
                     headers: {
-                        Authorization: `Bearer ${localStorage.getItem("userToken")}`
-                    }
+                        Authorization: `Bearer ${localStorage.getItem("userToken")}`,
+                    },
                 }
-            )
-            return response.data
+            );
+            return response.data;
         } catch (error) {
-            console.error(error);
-            return rejectWithValue(error.response.data)
+            return rejectWithValue(error.response.data);
         }
     }
-)
+);
 
-// update user info
+
 export const updateUser = createAsyncThunk("admin/updateUser",
     async ({ id, name, email, role }) => {
         const response = await axios.put(`${import.meta.env.VITE_BACKEND_URL}/api/admin/users/${id}`,
@@ -51,20 +51,20 @@ export const updateUser = createAsyncThunk("admin/updateUser",
     }
 )
 
-// delete user
-export const deleteUser = createAsyncThunk("admin/delteUser",
-    async ({ id },) => {
-        await axios.delete(`${import.meta.env.VITE_BACKEND_URL}/api/admin/users`,
+export const deleteUser = createAsyncThunk(
+    "admin/deleteUser",
+    async (id) => {
+        await axios.delete(
+            `${import.meta.env.VITE_BACKEND_URL}/api/admin/users/${id}`,
             {
                 headers: {
-                    Authorization: `Bearer ${localStorage.getItem("userToken")}`
-                }
+                    Authorization: `Bearer ${localStorage.getItem("userToken")}`,
+                },
             }
-        )
-        return id
+        );
+        return id;
     }
-)
-
+);
 
 const adminSlice = createSlice({
     name: "admin",
@@ -93,33 +93,50 @@ const adminSlice = createSlice({
                 state.loading = false
                 state.error = action.payload.message
             })
-
             .addCase(updateUser.pending, (state) => {
                 state.loading = true
             })
             .addCase(updateUser.fulfilled, (state, action) => {
-                const updatedUser = action.payload
-                const userIndex = state.users.findIndex((user) => user._id === updateUser._id)
-                if (userIndex !== -1) {
-                    state.users[userIndex] = updatedUser
+                state.loading = false;
+                const updatedUser = action.payload.user;
+
+                const index = state.users.findIndex(
+                    (u) => u._id === updatedUser._id
+                );
+
+                if (index !== -1) {
+                    state.users[index] = updatedUser;
                 }
             })
             .addCase(updateUser.rejected, (state, action) => {
                 state.users = state.users.filter((user) => user._id !== action.payload)
             })
-
             .addCase(addUser.pending, (state) => {
                 state.loading = true
                 state.error = null
             })
             .addCase(addUser.fulfilled, (state, action) => {
-                state.loading = false
-                state.users = push(action.payload.user)
+                state.loading = false;
+                state.users.unshift(action.payload.user);
             })
             .addCase(addUser.rejected, (state, action) => {
                 state.loading = false
                 state.error = action.payload.message
             })
+            .addCase(deleteUser.pending, (state) => {
+                state.loading = true;
+            })
+            .addCase(deleteUser.fulfilled, (state, action) => {
+                state.loading = false;
+                state.users = state.users.filter(
+                    (user) => user._id !== action.payload
+                );
+                state.totalUsers -= 1;
+            })
+            .addCase(deleteUser.rejected, (state, action) => {
+                state.loading = false;
+                state.error = action.error.message;
+            });
     }
 })
 

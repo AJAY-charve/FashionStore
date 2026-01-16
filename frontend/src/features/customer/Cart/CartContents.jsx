@@ -5,7 +5,6 @@ import {
   removeFromCart,
   updateCartItemQuantity,
 } from "../../../redux/slice/cartSlice";
-import axios from "axios";
 
 const CartContents = ({ cart, userId, guestId }) => {
   const dispatch = useDispatch();

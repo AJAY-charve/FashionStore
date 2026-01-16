@@ -6,7 +6,7 @@ import { Toaster } from "sonner";
 import store from "./redux/store";
 import CustomerRoutes from "./features/customer/Routes/CustomerRoutes";
 import AdminRoutes from "./features/admin/Routes/AdminRoutes";
-import NotFound from "./NotFound";
+import NotFound from "./features/components/common/NotFound";
 
 const App = () => {
   return (
@@ -16,7 +16,6 @@ const App = () => {
         <Routes>
           {CustomerRoutes}
           {AdminRoutes}
-          {/* <AdminRoutes /> */}
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>

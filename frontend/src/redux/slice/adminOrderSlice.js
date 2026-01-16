@@ -3,9 +3,6 @@ import axios from "axios";
 
 const API_URL = `${import.meta.env.VITE_BACKEND_URL}/api/admin/orders`;
 
-/* =========================
-   FETCH ALL ORDERS (ADMIN)
-========================= */
 export const fetchAllOrders = createAsyncThunk(
     "adminOrders/fetchAllOrders",
     async ({ page = 1, limit = 10 }, { rejectWithValue }) => {
@@ -24,9 +21,7 @@ export const fetchAllOrders = createAsyncThunk(
     }
 );
 
-/* =========================
-   UPDATE ORDER STATUS
-========================= */
+
 export const updateOrderStatus = createAsyncThunk(
     "adminOrders/updateOrderStatus",
     async ({ id, status }, { rejectWithValue }) => {
@@ -49,9 +44,6 @@ export const updateOrderStatus = createAsyncThunk(
     }
 );
 
-/* =========================
-   DELETE ORDER
-========================= */
 export const deleteOrder = createAsyncThunk(
     "adminOrders/deleteOrder",
     async (id, { rejectWithValue }) => {
@@ -70,9 +62,6 @@ export const deleteOrder = createAsyncThunk(
     }
 );
 
-/* =========================
-   SLICE
-========================= */
 const adminOrderSlice = createSlice({
     name: "adminOrders",
     initialState: {
@@ -94,7 +83,6 @@ const adminOrderSlice = createSlice({
     },
     extraReducers: (builder) => {
         builder
-            /* FETCH ALL ORDERS */
             .addCase(fetchAllOrders.pending, (state) => {
                 state.loading = true;
                 state.error = null;
@@ -115,8 +103,6 @@ const adminOrderSlice = createSlice({
                 state.loading = false;
                 state.error = action.payload;
             })
-
-            /* UPDATE ORDER STATUS */
             .addCase(updateOrderStatus.pending, (state) => {
                 state.loading = true;
             })
@@ -130,15 +116,12 @@ const adminOrderSlice = createSlice({
                 if (index !== -1) {
                     state.orders[index] = updatedOrder;
                 }
-
                 state.successMessage = "Order status updated successfully";
             })
             .addCase(updateOrderStatus.rejected, (state, action) => {
                 state.loading = false;
                 state.error = action.payload;
             })
-
-            /* DELETE ORDER */
             .addCase(deleteOrder.fulfilled, (state, action) => {
                 state.orders = state.orders.filter(
                     (order) => order._id !== action.payload

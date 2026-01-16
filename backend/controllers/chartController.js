@@ -8,9 +8,7 @@ const getCart = async (userId, guestId) => {
     return null
 }
 
-// @desc    Add product to cart (guest or user)
-// @route   POST /api/cart
-// @access  Public
+// Add product to cart (guest or user)
 const addToCart = async (req, res) => {
     const { productId, quantity, size, color, guestId, userId } = req.body
 
@@ -53,9 +51,14 @@ const addToCart = async (req, res) => {
             return res.status(200).json(cart)
         }
 
+        if (!guestId && !userId) {
+            return res.status(400).json({ message: "guestId or userId required" });
+        }
+
         const newCart = await Cart.create({
             user: userId || undefined,
-            guestId: guestId || `guest_${Date.now()}`,
+            // guestId: guestId || `guest_${Date.now()}`,
+            guestId: guestId,
             products: [{
                 productId,
                 name: product.name,
@@ -76,9 +79,7 @@ const addToCart = async (req, res) => {
     }
 }
 
-// @desc    Update product quantity
-// @route   PUT /api/cart
-// @access  Public
+// Update product quantity
 const updateCartItem = async (req, res) => {
     const { productId, quantity, size, color, guestId, userId } = req.body
 
@@ -119,9 +120,7 @@ const updateCartItem = async (req, res) => {
     }
 }
 
-// @desc    Remove product from cart
-// @route   DELETE /api/cart
-// @access  Public
+// Remove product from cart
 const removeFromCart = async (req, res) => {
     const { productId, size, color, guestId, userId } = req.body
 
@@ -151,9 +150,7 @@ const removeFromCart = async (req, res) => {
 }
 
 
-// @desc    Get cart
-// @route   GET /api/cart
-// @access  Public
+// Get cart
 const getUserCart = async (req, res) => {
     const { userId, guestId } = req.query
 
@@ -169,9 +166,7 @@ const getUserCart = async (req, res) => {
     }
 }
 
-// @desc    Merge guest cart into user cart
-// @route   POST /api/cart/merge
-// @access  Private
+// Merge guest cart into user cart
 const mergeCart = async (req, res) => {
     const { guestId } = req.body
 

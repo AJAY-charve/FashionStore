@@ -1,8 +1,6 @@
 const Subscriber = require("../models/Subscriber")
 
-// @desc    Subscribe to newsletter
-// @route   POST /api/subscribers/subscribe
-// @access  Public
+//  Subscribe to newsletter
 const subscribeNewsletter = async (req, res) => {
     const { email } = req.body
 
@@ -11,7 +9,6 @@ const subscribeNewsletter = async (req, res) => {
     }
 
     try {
-        // check if already subscribed
         let subscriber = await Subscriber.findOne({ email })
         if (subscriber) {
             return res.status(400).json({
@@ -19,7 +16,6 @@ const subscribeNewsletter = async (req, res) => {
             })
         }
 
-        // create new subscriber
         subscriber = new Subscriber({ email })
         await subscriber.save()
 

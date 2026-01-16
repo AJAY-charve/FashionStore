@@ -3,6 +3,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import CustomTable from "../../components/common/CustomTable";
 import { fetchUserOrders } from "../../../redux/slice/orderSlice";
+import Error from "../../components/common/Error";
 
 const MyOrders = () => {
   const dispatch = useDispatch();
@@ -19,25 +20,22 @@ const MyOrders = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [rowsPerPage, setRowsPerPage] = useState(10);
 
-  /* ---------------- FETCH ORDERS ---------------- */
   useEffect(() => {
     dispatch(fetchUserOrders({ page: currentPage, limit: rowsPerPage }));
   }, [dispatch, currentPage, rowsPerPage]);
 
-  /* ---------------- VIEW ORDER ---------------- */
   const handleViewOrder = (id) => {
     navigate(`/order/${id}`);
   };
 
-  /* ---------------- TABLE COLUMNS ---------------- */
   const columns = [
     {
       title: "Image",
       key: "image",
       render: (row) => (
         <img
-          src={row.orderItems?.[0]?.images}
-          alt={row.orderItems?.[0]?.name}
+          src={row.orderItems?.image}
+          alt={row.orderItems?.name}
           className="w-10 h-10 sm:w-12 sm:h-12 object-cover rounded-lg"
         />
       ),
@@ -99,8 +97,6 @@ const MyOrders = () => {
       render: (row) => (
         <button
           onClick={() => {
-            // console.log("row", row._id);
-
             handleViewOrder(row._id);
           }}
           className="bg-blue-600 text-white px-3 py-1 rounded text-sm hover:bg-blue-700"
@@ -111,9 +107,8 @@ const MyOrders = () => {
     },
   ];
 
-  /* ---------------- ERROR STATE ---------------- */
   if (error) {
-    return <div className="p-6 text-red-500 font-semibold">Error: {error}</div>;
+    return <Error />;
   }
 
   return (
@@ -124,8 +119,6 @@ const MyOrders = () => {
         columns={columns}
         data={orders}
         loading={loading}
-        // pageSizeOptions={[10, 20, 50]}
-        // maxHeight={800}
         currentPage={page}
         totalPages={totalPages}
         onPageChange={setCurrentPage}

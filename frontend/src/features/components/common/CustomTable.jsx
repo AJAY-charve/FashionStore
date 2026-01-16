@@ -139,6 +139,7 @@
 // export default CustomTable;
 
 import React from "react";
+import Loading from "./Loading";
 
 const CustomTable = ({
   columns = [],
@@ -152,9 +153,9 @@ const CustomTable = ({
   pageSizeOptions = [10, 20, 50],
 }) => {
   return (
-    <div className="bg-white rounded-lg shadow-md w-full">
+    <div className="bg-white rounded-sm shadow w-full">
       {/* top controls */}
-      <div className="flex justify-between items-center p-4 border-b">
+      <div className="flex justify-between items-center p-2 lg:p-4 xl:p-6 border-b">
         <p className="text-sm text-gray-600">
           Page {currentPage} of {totalPages}
         </p>
@@ -192,7 +193,8 @@ const CustomTable = ({
             {loading && (
               <tr>
                 <td colSpan={columns.length} className="text-center py-10">
-                  Loading...
+                  {/* Loading... */}
+                  <Loading />
                 </td>
               </tr>
             )}
@@ -220,7 +222,7 @@ const CustomTable = ({
       </div>
 
       {/* pagination */}
-      <div className="flex justify-center gap-4 p-4">
+      <div className="flex justify-center gap-4 p-2 lg:p-4 xl:p-6">
         <button
           onClick={() => onPageChange(currentPage - 1)}
           disabled={currentPage === 1}
