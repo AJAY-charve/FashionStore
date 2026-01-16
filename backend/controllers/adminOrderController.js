@@ -1,15 +1,8 @@
 const Order = require("../models/Order")
 
-// @desc    Get all orders
-// @route   GET /api/orders
-// @access  Private/Admin
+// Get all orders
 const getAllOrders = async (req, res) => {
     try {
-        // const orders = await Order.find({})
-        //     .populate("user", "name email")
-
-        // res.json(orders)
-
         const page = Number(req.query.page) || 1
         const limit = Number(req.query.limit)
 
@@ -21,6 +14,7 @@ const getAllOrders = async (req, res) => {
             .skip(skip)
             .limit(limit)
             .sort({ createdAt: -1 })
+            .populate("user", "name email")
 
         res.status(200).json({
             orders,
@@ -35,9 +29,7 @@ const getAllOrders = async (req, res) => {
     }
 }
 
-// @desc    Update order status
-// @route   PUT /api/orders/:id
-// @access  Private/Admin
+// Update order status
 const updateOrderStatus = async (req, res) => {
     try {
         const order = await Order.findById(req.params.id)
@@ -62,9 +54,7 @@ const updateOrderStatus = async (req, res) => {
     }
 }
 
-// @desc    Delete an order
-// @route   DELETE /api/orders/:id
-// @access  Private/Admin
+// Delete an order
 const deleteOrder = async (req, res) => {
     try {
         const order = await Order.findById(req.params.id)

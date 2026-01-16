@@ -2,9 +2,7 @@ const Checkout = require("../models/Checkout")
 const Cart = require("../models/Cart")
 const Order = require("../models/Order")
 
-// @desc    Create checkout
-// @route   POST /api/checkout
-// @access  Private 
+// Create checkout
 const createCheckout = async (req, res) => {
     const { checkoutItems, shippingAddress, paymentMethod, totalPrice } = req.body
 
@@ -31,9 +29,7 @@ const createCheckout = async (req, res) => {
     }
 }
 
-// @desc    Mark checkout as paid
-// @route   PUT /api/checkout/:id/pay
-// @access  Private
+// Mark checkout as paid
 const markCheckoutPaid = async (req, res) => {
     const { paymentStatus, paymentDetails } = req.body
 
@@ -66,9 +62,7 @@ const markCheckoutPaid = async (req, res) => {
     }
 }
 
-// @desc    Finalize checkout and create order
-// @route   POST /api/checkout/:id/finalize
-// @access  Private
+// Finalize checkout and create order
 const finalizeCheckout = async (req, res) => {
     try {
         const checkout = await Checkout.findById(req.params.id)

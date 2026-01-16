@@ -3,8 +3,9 @@ import { useDispatch, useSelector } from "react-redux";
 import { Link, useParams } from "react-router-dom";
 import CustomTable from "../../components/common/CustomTable";
 import { fetchOrderDetails } from "../../../redux/slice/orderSlice";
+import Loading from "../../components/common/Loading";
+import Error from "../../components/common/Error";
 
-/* ---------------- STATUS STYLES ---------------- */
 const statusStyles = {
   Processing: "bg-yellow-100 text-yellow-700 border-yellow-200",
   Shipped: "bg-blue-100 text-blue-700 border-blue-200",
@@ -22,22 +23,8 @@ const OrderDetails = () => {
     dispatch(fetchOrderDetails({ orderId: id }));
   }, [dispatch, id]);
 
-  /* ---------------- STATES ---------------- */
-  if (loading) {
-    return (
-      <div className="flex justify-center items-center py-24 text-gray-500">
-        Loading order details...
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="flex justify-center items-center py-24 text-red-600">
-        Error: {error}
-      </div>
-    );
-  }
+  if (loading) return <Loading />;
+  if (error) return <Error />;
 
   if (!orderDetails) {
     return (
@@ -47,7 +34,6 @@ const OrderDetails = () => {
     );
   }
 
-  /* ---------------- PRODUCT TABLE ---------------- */
   const productColumns = [
     {
       title: "Product",
@@ -85,14 +71,12 @@ const OrderDetails = () => {
   ];
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6">
-      {/* ---------------- TITLE ---------------- */}
+    <div className="max-w-7xl mx-auto p-2 lg:p-4 xl:p-6">
       <h2 className="text-2xl md:text-3xl font-bold text-gray-800 mb-6">
         📦 Order Details
       </h2>
 
       <div className="bg-white border rounded-xl shadow-sm p-4 sm:p-6">
-        {/* ---------------- HEADER ---------------- */}
         <div className="flex flex-col lg:flex-row justify-between gap-6 mb-8">
           <div>
             <p className="text-sm text-gray-500">Order ID</p>
@@ -104,7 +88,6 @@ const OrderDetails = () => {
             </p>
           </div>
 
-          {/* ---------------- STATUS BADGES ---------------- */}
           <div className="flex flex-wrap gap-2 items-start lg:items-center">
             <span
               className={`px-3 py-1 rounded-full text-sm font-medium border
@@ -140,7 +123,6 @@ const OrderDetails = () => {
           </div>
         </div>
 
-        {/* ---------------- INFO CARDS ---------------- */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-5 mb-8">
           {/* Payment Info */}
           <div className="border rounded-lg p-4">
@@ -190,7 +172,6 @@ const OrderDetails = () => {
           </div>
         </div>
 
-        {/* ---------------- PRODUCTS ---------------- */}
         <h4 className="text-lg font-semibold text-gray-800 mb-4">
           🛒 Ordered Products
         </h4>
@@ -201,7 +182,6 @@ const OrderDetails = () => {
           loading={false}
         />
 
-        {/* ---------------- BACK ---------------- */}
         <div className="mt-6">
           <Link
             to="/my-orders"

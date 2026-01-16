@@ -1,8 +1,8 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
 
-// fetch products by collection and optional filters
-export const fetchProductByFilters = createAsyncThunk("products/fetchByFilters",
+export const fetchProductByFilters = createAsyncThunk(
+    "products/fetchByFilters",
     async ({
         collection,
         size,
@@ -15,29 +15,35 @@ export const fetchProductByFilters = createAsyncThunk("products/fetchByFilters",
         category,
         material,
         brand,
-        limit
+        page = 1,
+        limit = 12
     }) => {
-        const query = new URLSearchParams()
-        if (collection) query.append("collection", collection)
-        if (size) query.append("size", size)
-        if (color) query.append("colors", color)
-        if (gender) query.append("gender", gender)
-        if (minPrice) query.append("minPrice", minPrice)
-        if (maxPrice) query.append("maxPrice", maxPrice)
-        if (sortBy) query.append("sortBy", sortBy)
-        if (search) query.append("search", search)
-        if (category) query.append("category", category)
-        if (material) query.append("material", material)
-        if (brand) query.append("brand", brand)
-        if (limit) query.append("limit", limit)
+        const query = new URLSearchParams();
 
-        const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/api/products?${query.toString()}`)
-        return response.data
+        if (collection) query.append("collection", collection);
+        if (size) query.append("size", size);
+        if (color) query.append("color", color);
+        if (gender) query.append("gender", gender);
+        if (minPrice) query.append("minPrice", minPrice);
+        if (maxPrice) query.append("maxPrice", maxPrice);
+        if (sortBy) query.append("sortBy", sortBy);
+        if (search) query.append("search", search);
+        if (category) query.append("category", category);
+        if (material) query.append("material", material);
+        if (brand) query.append("brand", brand);
+
+        query.append("page", page);
+        query.append("limit", limit);
+
+        const response = await axios.get(
+            `${import.meta.env.VITE_BACKEND_URL}/api/products?${query.toString()}`
+        );
+
+        return response.data;
     }
-)
+);
 
 
-// fetch product a single product by id
 export const fetchProductDetails = createAsyncThunk("products/fetchProductDetails",
     async ({ id }) => {
         const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/api/products/${id}`)
@@ -45,7 +51,6 @@ export const fetchProductDetails = createAsyncThunk("products/fetchProductDetail
     }
 )
 
-// fetch similar products
 export const updateProduct = createAsyncThunk("products/updateProduct",
     async ({ id, productData }) => {
         const response = await axios.put(`${import.meta.env.VITE_BACKEND_URL}/api/products/${id}`, productData,
@@ -59,7 +64,6 @@ export const updateProduct = createAsyncThunk("products/updateProduct",
     }
 );
 
-// fetch similar products
 export const fetchSimilarProducts = createAsyncThunk("products/fetchSimilarProducts",
     async ({ id }) => {
         const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/api/products/similar/${id}`)
@@ -72,6 +76,8 @@ const productSlice = createSlice({
     name: "products",
     initialState: {
         products: [],
+        totalPages: 1,
+        currentPage: 1,
         selectedProduct: null,
         similarProducts: [],
         loading: false,
@@ -112,20 +118,20 @@ const productSlice = createSlice({
     },
     extraReducers: (builder) => {
         builder
-            // all get filter products
             .addCase(fetchProductByFilters.pending, (state) => {
                 state.loading = true
                 state.error = null
             })
             .addCase(fetchProductByFilters.fulfilled, (state, action) => {
-                state.loading = false
-                state.products = Array.isArray(action.payload) ? action.payload : []
+                state.loading = false;
+                state.products = action.payload.products;
+                state.totalPages = action.payload.totalPages;
+                state.currentPage = action.payload.currentPage;
             })
             .addCase(fetchProductByFilters.rejected, (state, action) => {
                 state.loading = false
                 state.error = action.error.message
             })
-            // hendle fetching sinle products
             .addCase(fetchProductDetails.pending, (state) => {
                 state.loading = true
                 state.error = null
@@ -138,7 +144,6 @@ const productSlice = createSlice({
                 state.loading = false
                 state.error = action.error.message
             })
-            // handle update product
             .addCase(updateProduct.pending, (state) => {
                 state.loading = true
                 state.error = null
@@ -155,7 +160,6 @@ const productSlice = createSlice({
                 state.loading = false
                 state.error = action.error.message
             })
-            // fetch similar product
             .addCase(fetchSimilarProducts.pending, (state) => {
                 state.loading = true,
                     state.error = null

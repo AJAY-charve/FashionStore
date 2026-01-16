@@ -10,9 +10,7 @@ cloudinary.config({
     api_secret: process.env.CLOUDINARY_API_SECRET
 })
 
-// @desc    Upload an image to Cloudinary
-// @route   POST /api/uploads
-// @access  Public (or protected if you want)
+// Upload an image to Cloudinary
 const uploadImage = async (req, res) => {
     try {
         if (!req.file) {
@@ -22,7 +20,7 @@ const uploadImage = async (req, res) => {
         const streamUpload = (buffer) => {
             return new Promise((resolve, reject) => {
                 const stream = cloudinary.uploader.upload_stream(
-                    { folder: "fashion-store" }, // folder in Cloudinary
+                    { folder: "fashion-store" },
                     (error, result) => {
                         if (result) resolve(result)
                         else reject(error)
